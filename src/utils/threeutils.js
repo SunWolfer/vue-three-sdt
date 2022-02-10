@@ -458,7 +458,7 @@ export class addModel {
 	/**
 	 * 结束绘制
 	 */
-	drawEnd (position, obj, conectList) {
+	drawEnd (position, obj) {
 		if (!obj) return
 		let po = position
 		// 判断是否是平面
@@ -515,8 +515,6 @@ export class addModel {
 		// 生成0节点
 		if (lens == 1 && lene == 1) {
 			name = `${this.startDrawModel[0]}-${this.endDrawModel[0]}`
-			// 未连接节点
-			if (conectList.indexOf(name) > -1) return
 		}
 		// 生成球
 		for (let i = 0; i < nodeArray.length; i++) {
@@ -543,9 +541,6 @@ export class addModel {
 		Vue.nextTick(() => {
 			this.connectBall(genModelList)
 		})
-		// setTimeout(()=> {
-		// 	this.connectBall(genModelList)
-		// }, 0)
 		this.cylinder = null
 		this.startPoint = new THREE.Vector3(0, 0, 0)
 		// 起始绘制模型
@@ -581,19 +576,14 @@ export class addModel {
 		for (let i = 0; i < names.length; i++) {
 			let conts = names[i].split('-')
 			let points = []
-			this.object.traverse((obj) => {
-			  if (obj.isMesh && (obj.name === conts[0] || obj.name === conts[1])) {
-					points.push(obj)
-			  }
+			points = this.object.children.filter(obj => {
+				return obj.isMesh && (obj.name === conts[0] || obj.name === conts[1])
 			})
 			sumPoint.push(points)
 		}
 		for (let i = 0; i < sumPoint.length; i++) {
 			this.object = addSkycheck(sumPoint[i][0].position, sumPoint[i][1].position, this.object, names[i], material ? material : this.material)
 		}
-		// setTimeout(() => {
-		// 	localStorage.setItem('cylinder', JSON.stringify(this.object.toJSON()))
-		// }, 0)
 	}
 	removeGeoModel (removeObj) {
 		// 查询与选中模型连接的球
@@ -602,7 +592,6 @@ export class addModel {
 		let firstPoint = null
 		// 二球
 		let secondPoint = null
-		
 		// 与球连接的巷道条数
 		let leftPoint = []
 		let rightPoint = []
@@ -628,16 +617,10 @@ export class addModel {
 			this.deletePicSprite(removeObj)
 		} else {
 			// 是否删除
-			let isDel = true
-			this.object.traverse((child) => {
-				if (child.isMesh) {
-					// 连接巷道的节点不能删除
-					if ((child.name.indexOf(`-${removeObj.name + ''}`) != -1) || (child.name.indexOf(`${removeObj.name + ''}-`) != -1)) {
-						isDel = false
-					}
-				}
+			let tt = this.object.children.find(child => {
+				return child.isMesh && ((child.name.indexOf(`-${removeObj.name + ''}`) != -1) || (child.name.indexOf(`${removeObj.name + ''}-`) != -1))
 			})
-			if (isDel) {
+			if (tt) {
 				// 移除选中模型
 				this.deletePicSprite(removeObj)
 			}
@@ -679,10 +662,6 @@ export class addModel {
 			return parseInt(i.name)
 		})
 		this.startDrawPoint = Math.max(...maxnum) + 1
-		// let aa = this.object.toJSON()
-		// console.log(aa)
-		// console.log(JSON.stringify(aa))
-		// localStorage.setItem('cylinder', JSON.stringify(aa))
 	}
 	/**
 	 * 添加风门风窗传感器模型

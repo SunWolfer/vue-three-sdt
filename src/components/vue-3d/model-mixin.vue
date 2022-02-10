@@ -514,8 +514,7 @@ export default {
 							y: intersected.point.y,
 							z: intersected.point.z
 						},
-						intersected.object,
-						this.conectList
+						intersected.object
 					);
 					this.$emit('end-draw', changeModel);
 				}
