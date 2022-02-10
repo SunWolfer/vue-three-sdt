@@ -576,7 +576,7 @@ export class addModel {
 	 * 连接球
 	 * @param {Object} names
 	 */
-	connectBall (names) {
+	connectBall (names, material) {
 		let sumPoint = []
 		for (let i = 0; i < names.length; i++) {
 			let conts = names[i].split('-')
@@ -589,7 +589,7 @@ export class addModel {
 			sumPoint.push(points)
 		}
 		for (let i = 0; i < sumPoint.length; i++) {
-			this.object = addSkycheck(sumPoint[i][0].position, sumPoint[i][1].position, this.object, names[i], this.material)
+			this.object = addSkycheck(sumPoint[i][0].position, sumPoint[i][1].position, this.object, names[i], material ? material : this.material)
 		}
 		// setTimeout(() => {
 		// 	localStorage.setItem('cylinder', JSON.stringify(this.object.toJSON()))

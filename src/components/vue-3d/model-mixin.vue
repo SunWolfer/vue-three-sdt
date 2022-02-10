@@ -481,7 +481,7 @@ export default {
 					this.object.traverse((child) => {
 					  if (child.isMesh && child.name.indexOf(tName) != -1) {
 							if (child.name.split('-').length > 1) {
-								this.dealRoadWay.push(child.name)
+								this.dealRoadWay.push(child)
 							}
 					  }
 					})
@@ -529,9 +529,9 @@ export default {
 		onObjectChange () {
 			let self = this
 			for (let i = 0; i < this.dealRoadWay.length; i++) {
-				this.newModel.removeModelByNames(this.dealRoadWay[i])
+				this.newModel.removeModelByNames(this.dealRoadWay[i].name)
 				this.$nextTick(() => {
-					self.newModel.connectBall([self.dealRoadWay[i]])
+					self.newModel.connectBall([self.dealRoadWay[i].name], this.dealRoadWay[i].material)
 				})
 			}
 			// console.log(this.transformControl.object)
