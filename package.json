@@ -1,0 +1,16 @@
+{
+  "name": "vue-three-sdt",
+  "version": "1.0.12",
+  "author": "zhy",
+  "description": "前端加载3d模型以及基本的增删改查",
+  "main": "src/main.js",
+  "files": [
+	"node_modules",
+    "src",
+    "package.json",
+    "README.md"
+  ],
+  "dependencies": {
+    "three": "^0.136.0"
+  }
+}
