@@ -1,6 +1,8 @@
 import * as THREE from 'three/build/three.module.js'
 import { Point }  from './vector.js'
 import { ObjectLoader } from 'three'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
+import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
 
 // 静态模型
 import { windModel , doorModel, windowModel, sensorModel} from './staticModel.js'
@@ -263,7 +265,7 @@ export function addAllWindDir (object) {
 			obj: obj,
 			curve: abs,
 			counter: 0,
-			speed: 0.005,
+			speed: Math.random() * 0.1,
 			up: new THREE.Vector3(0, 1, 0),
 			axis: new THREE.Vector3()
 		})
@@ -350,19 +352,11 @@ export function changeWindDire (edge, moveTextures) {
  * @param {Object} type
  */
 export function addMyModel (position, object, type, sence) {
+	
 	let loader = new ObjectLoader()
-	let myModel = null
-	let randomName = ''
-	if (type == '1') {
-		myModel = doorModel
-		randomName = 'door-'
-	} else if (type == '2') {
-		myModel = windowModel
-		randomName = 'window-'
-	} else if (type == '3') {
-		myModel = sensorModel
-		randomName = 'sensor-'
-	}
+	let myModel = type == '1' ? doorModel : (type == '2' ? windowModel: sensorModel)
+	let randomName = type == '1' ? 'door-' : (type == '2' ? 'window-': 'sensor-')
+	
 	let myWind = loader.parse(myModel)
 	let arrowHelper = myWind.clone()
 	arrowHelper.name = randomName + Math.random()
@@ -381,14 +375,69 @@ export function addMyModel (position, object, type, sence) {
 	let dir = new THREE.Vector3()
 	
 	dir.subVectors(start, end)
-	// let up = new THREE.Vector3(0, 1, 0)
-	let up = object.up
+	let up = new THREE.Vector3(0, 1, 0)
+	// let up = object.up
 	arrowHelper.position.set(position.x, position.y, position.z)
+	// arrowHelper.rotation.set(object.rotation.x, object.rotation.y, object.rotation.z)
 	let tangent = dir.clone().normalize()
 	axis.crossVectors(up, tangent).normalize()
 	let radians = Math.acos(up.dot(tangent))
 	arrowHelper.quaternion.setFromAxisAngle(axis, radians)
-	// arrowHelper.rotateOnAxis( new THREE.Vector3( 0, 1, 0 ), Math.PI)
+	// // arrowHelper.rotateOnAxis( new THREE.Vector3( 0, 1, 0 ), Math.PI)
 	// arrowHelper.rotateZ(-Math.PI)
-	return arrowHelper
+	sence.add(arrowHelper)
+}
+
+export function addModelByFire (position, object, type, sence) {
+	let loader = new GLTFLoader()
+	loader.load('./fires/door.glb', (data) => {
+		let myWind = data.scene
+		let randomName = type == '1' ? 'door-' : (type == '2' ? 'window-': 'sensor-')
+		
+		let arrowHelper = myWind.clone()
+		arrowHelper.name = randomName + Math.random()
+		
+		let pointsName = object.name.split('-')
+		let points = []
+		sence.traverse((child) => {
+		  if (child.isMesh && ((child.name == pointsName[0]) || (child.name == pointsName[1]))) {
+				points.push(child.position)
+		  }
+		})
+		
+		let start = points[0]
+		let end = points[1]
+		let axis = new THREE.Vector3()
+		let dir = new THREE.Vector3()
+		
+		dir.subVectors(start, end)
+		let up = object.up
+		let tangent = dir.clone().normalize()
+		axis.crossVectors(up, tangent).normalize()
+		let radians = Math.acos(up.dot(tangent))
+		arrowHelper.quaternion.setFromAxisAngle(axis, radians)
+		
+		arrowHelper.position.set(position.x, position.y, position.z)
+		arrowHelper.rotation.set(object.rotation.x, object.rotation.y, object.rotation.z)
+		
+		sence.add(arrowHelper)
+	})
+}
+
+// 保存文件
+export function saveArrayBuffer ( buffer, filename) {
+	save( new Blob( [ buffer ], { type: 'application/octet-stream' } ), filename );
+}
+
+export function saveString (text, filename) {
+	save( new Blob( [ text ], { type: 'text/plain' } ), filename );
+}
+
+function save ( blob, filename ) {
+	const link = document.createElement( 'a' );
+	link.style.display = 'none';
+	document.body.appendChild( link ); // Firefox workaround, see #6594
+	link.href = URL.createObjectURL( blob );
+	link.download = filename;
+	link.click();
 }

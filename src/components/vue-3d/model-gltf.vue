@@ -37,7 +37,6 @@ export default {
   },
   methods: {
     load () {
-			let t1 = +new Date()
       if (!this.src) return
       if (this.object) {
         this.wrapper.remove(this.object)

@@ -28,7 +28,7 @@ import { CopyShader } from 'three/examples/jsm/shaders/CopyShader';
 import { BloomPass } from 'three/examples/jsm/postprocessing/BloomPass';
 import { CSS2DRenderer, CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer';
 
-import { addAllWindDir } from '../../utils/subVectors';
+import { addAllWindDir, saveArrayBuffer, saveString } from '../../utils/subVectors';
 
 import editArea from '../edit-area/index.vue'
 // 删除弹窗
@@ -786,7 +786,8 @@ export default {
 				let tNum = parseFloat(this.labelList[i].num)
 				let poName = this.object.children.find(a => {
 					return a.name == this.labelList[i].name;
-				});
+				})
+				poName.material.dispose()
 				// 根据风量设置颜色
 				if (tNum > this.rwColorNums[0]) {
 					const material = new THREE.MeshBasicMaterial( {color: this.rwColors[0]} );
@@ -912,6 +913,8 @@ export default {
 		},
 		saveModel () {
 			this.$emit('save-model')
+			// const output = JSON.stringify( this.object.toJSON() );
+			// saveString( output, 'scene.json' );
 		}
 	}
 };

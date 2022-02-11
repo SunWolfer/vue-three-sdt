@@ -6,7 +6,7 @@ import pubCode from './pubCode.js'
 
 import { Point }  from './vector.js'
 
-import { addSkycheck, createUnitCylinder, findCenterPoint, creatBallsByPoint, removeSkycheck, findCenterByPoint, addMyModel } from './subVectors.js'
+import { addSkycheck, createUnitCylinder, findCenterPoint, creatBallsByPoint, removeSkycheck, findCenterByPoint, addMyModel, addModelByFire } from './subVectors.js'
 
 /**
  * 3D动画控制类
@@ -671,7 +671,6 @@ export class addModel {
 	 */
 	addSmallModel (position, obj, type) {
 		let po = findCenterByPoint(position, obj, this.object)
-		let myObj = addMyModel(po, obj, type, this.object)
-		this.object.add(myObj)
+		addMyModel(po, obj, type, this.object)
 	}
 }
