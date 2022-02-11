@@ -6,7 +6,7 @@ import pubCode from './pubCode.js'
 
 import { Point }  from './vector.js'
 
-import { addSkycheck, createUnitCylinder, findCenterPoint, creatBallsByPoint, removeSkycheck, findCenterByPoint, addMyModel, addModelByFire } from './subVectors.js'
+import { addSkycheck, createUnitCylinder, findCenterPoint, creatBallsByPoint, removeSkycheck, findCenterByPoint, addMyModel } from './subVectors.js'
 
 /**
  * 3D动画控制类
@@ -620,7 +620,7 @@ export class addModel {
 			let tt = this.object.children.find(child => {
 				return child.isMesh && ((child.name.indexOf(`-${removeObj.name + ''}`) != -1) || (child.name.indexOf(`${removeObj.name + ''}-`) != -1))
 			})
-			if (tt) {
+			if (!tt) {
 				// 移除选中模型
 				this.deletePicSprite(removeObj)
 			}
