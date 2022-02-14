@@ -127,19 +127,15 @@ export class cartoonUtil {
  * 添加模型类
  */
 export class addModel {
-  constructor (object, camera, viewcontrols, outlinePass, selectedObjects, wrapper, initModel, nodeColor) {
+  constructor (object, camera, wrapper, initModel, nodeColor) {
 	
     this.object = object
     this.camera = camera
-    this.viewcontrols = viewcontrols
-    this.outlinePass = outlinePass
-    this.selectedObjects = selectedObjects
 		this.wrapper = wrapper
 		this.cylinder = initModel
 		// 节点颜色
 		this.nodeColor = nodeColor
 		this.startPoint = new THREE.Vector3(0, 0, 0)
-    this.objList = this.getObjMeshList()
 		// 起始绘制点
 		this.startDrawPoint = null
 		// 起始绘制模型
@@ -154,184 +150,6 @@ export class addModel {
 		
 		this.initGLB()
   }
-
-  /**
-   * 添加图片
-   * @param picList 待添加图片列表，数据格式 [{name: '',imgUrl:''}]
-   * @param mulripleLong 显示长度
-   * @param mulripleWide 显示宽度
-   */
-  addPicture (picList, mulripleLong, mulripleWide) {
-    for (let picListElement of picList) {
-      const itemdata = this.objList.filter(i => {
-        return i.name === picListElement.name
-      })[0]
-      if (itemdata) {
-        const mark = this.addPicSprite(picListElement.imgUrl, mulripleLong, mulripleWide)
-        this.object.add(mark)
-        mark.name = picListElement.name
-        mark.position.x = itemdata.position.x
-        mark.position.y = itemdata.position.y
-        mark.position.z = itemdata.position.z
-      }
-    }
-  }
-  /**
-   * 添加文字（可带背景图）
-   * @param picList 待添加模型数据，格式[{name: '',imgUrl:'',mes:''}]
-   * @param mulripleLong 添加模型显示长
-   * @param mulripleWide 添加模型显示宽
-   */
-  addPicAndText (picList, mulripleLong, mulripleWide) {
-    let self = this
-    for (let picListElement of picList) {
-      const itemdata = this.objList.filter(i => {
-        return i.name === picListElement.name
-      })[0]
-      if (itemdata) {
-        if (picListElement.imgUrl) {
-          let beauty = new Image()
-          beauty.src = picListElement.imgUrl
-          beauty.onload = function () {
-            let mark = self.addTextSprite(beauty, mulripleLong, mulripleWide, picListElement.mes)
-            self.object.add(mark)
-            mark.name = picListElement.name
-            mark.position.x = itemdata.position.x
-            mark.position.y = itemdata.position.y
-            mark.position.z = itemdata.position.z
-          }
-        } else {
-          if (!pubCode.isNull(picListElement.mes)) {
-            let mark = self.addTextSprite('', mulripleLong, mulripleWide, picListElement.mes)
-            self.object.add(mark)
-            mark.name = picListElement.name
-            mark.position.x = itemdata.position.x
-            mark.position.y = itemdata.position.y
-            mark.position.z = itemdata.position.z
-          }
-        }
-      }
-    }
-  }
-  /**
-   * 一定区域内添加模型
-   * @param picList 待添加列表，数据格式[{pclt: '',pcrb: '', imgUrl: '', name: '', mes: ''}]
-   * @param mulripleLong 添加模型显示长
-   * @param mulripleWide 添加模型显示宽
-   */
-  addPicAndTextRandom (picList, mulripleLong, mulripleWide) {
-    let pz = 1
-    let px = 1
-    let self = this
-    for (let picListElement of picList) {
-      let equipUrl = ''
-      // 左上
-      let pclt = this.objList.filter(i => {
-        return i.name === picListElement.pclt
-      })[0]
-      // 右下
-      let pcrb = this.objList.filter(i => {
-        return i.name === picListElement.pcrb
-      })[0]
-      if (pclt && pcrb) {
-        equipUrl = picListElement.imgUrl
-        if (equipUrl) {
-          let beauty = new Image()
-          beauty.src = equipUrl
-          beauty.onload = function () {
-            let mark = self.addTextSprite(beauty, mulripleLong, mulripleWide, picListElement.mes)
-            self.object.add(mark)
-            mark.name = picListElement.name
-            mark.position.x = pclt.position.x + (pcrb.position.x - pclt.position.x) / 4 * px * Math.random()
-            mark.position.y = pclt.position.y
-            mark.position.z = pclt.position.z + (pcrb.position.z - pclt.position.z) / 3 * pz * Math.random()
-            pz = pz + 1
-            if (pz === 3) {
-              px = px + 1
-              pz = 1
-            }
-          }
-        } else {
-          let mark = this.addTextSprite('', mulripleLong, mulripleWide, picListElement.mes)
-          mark.name = picListElement.name
-          mark.position.x = pclt.position.x + (pcrb.position.x - pclt.position.x) / 4 * px * Math.random()
-          mark.position.y = pclt.position.y
-          mark.position.z = pclt.position.z + (pcrb.position.z - pclt.position.z) / 3 * pz * Math.random()
-          this.object.add(mark)
-          pz = pz + 1
-          if (pz === 3) {
-            px = px + 1
-            pz = 1
-          }
-        }
-      }
-    }
-  }
-  addPicSprite (imgUrl, mulripleLong, mulripleWide) {
-    let texture = new THREE.TextureLoader().load(imgUrl)
-    let spriteMaterial = new THREE.SpriteMaterial({
-      map: texture,
-      transparent: true,
-      opacity: 1
-    })
-    // 创建精灵模型对象，不需要几何体geometry参数
-    let sprite = new THREE.Sprite(spriteMaterial)
-    sprite.scale.set(mulripleLong, mulripleWide, 1) // 设置的是sprite的大小
-    sprite.center.set(0.5, 0)
-    return sprite
-  }
-  addTextSprite (imgUrl, mulripleLong, mulripleWide, perName) {
-    const canvas = document.createElement('canvas')
-    const ctx = canvas.getContext('2d')
-    const dpr = window.devicePixelRatio || 1
-    const bsr = ctx['webkitBackingStorePixelRatio'] ||
-      ctx['mozBackingStorePixelRatio'] ||
-      ctx['msBackingStorePixelRatio'] ||
-      ctx['oBackingStorePixelRatio'] ||
-      ctx['backingStorePixelRatio'] || 1
-    const ratio = dpr / bsr
-    canvas.width = 800 * ratio
-    if (imgUrl) {
-      ctx.drawImage(imgUrl, 0, 0, 300, 100)
-    }
-    // 设置字体
-    ctx.font = '900 60pt "SimHei"'
-    // 设置颜色
-    ctx.fillStyle = '#fff'
-    // 设置水平对齐方式
-    ctx.textAlign = 'center'
-    // 设置垂直对齐方式
-    ctx.textBaseline = 'bottom'
-    // 绘制文字（参数：要写的字，x坐标，y坐标）
-    // let strArray = perName.trim().split('_')
-    // strArray.forEach((i, aindex) => {
-    //   ctx.fillText(i, 5, 40 * (aindex + 1))
-    // })
-    ctx.fillText(perName, 350, 80)
-    const texture = new THREE.CanvasTexture(canvas)
-    let spriteMaterial = new THREE.SpriteMaterial({
-      map: texture,
-      blending: THREE.AdditiveBlending,
-      transparent: false,
-      // transparent: true,
-      opacity: 1
-    })
-    // 创建精灵模型对象，不需要几何体geometry参数
-    let sprite = new THREE.Sprite(spriteMaterial)
-    sprite.scale.set(mulripleLong, mulripleWide, 1) // 设置的是sprite的大小
-    sprite.center.set(0.3, 0)
-    return sprite
-  }
-  // 获取mesh对象列表
-  getObjMeshList () {
-    let objList = []
-    this.object.traverse((child) => {
-      if (child.isMesh) {
-        objList.push(child)
-      }
-    })
-    return objList
-  }
   /**
    * 控制某模型隐藏显示
    * @param isshow 是否显示
@@ -345,21 +163,6 @@ export class addModel {
         }
       }
     })
-  }
-  /**
-   * 控制相机看向某点
-   * @param name 点名称
-   */
-  lookAtPoint (name) {
-    for (const nameElement of this.objList) {
-      if (nameElement.name === name) {
-        this.camera.position.x = nameElement.position.x + 50
-        this.camera.position.z = nameElement.position.z + 50
-        this.camera.position.y = nameElement.position.y + 50
-        this.viewcontrols.target = new THREE.Vector3(nameElement.position.x, nameElement.position.y, nameElement.position.z)
-        this.camera.updateProjectionMatrix()
-      }
-    }
   }
   changeColor (selectedObjects) {
     this.outlinePass.selectedObjects = selectedObjects
@@ -401,12 +204,6 @@ export class addModel {
 		let po = position
 		// 判断是否是平面
 		if (obj.name !== 'planeModel') {
-			if (obj.name.split('-').length > 1) {
-				// 找中心点
-				po = findCenterByPoint(position, obj, this.object)
-			} else {
-				po = obj.position
-			}
 			// 起始绘制模型
 			this.startDrawModel = obj.name.split('-')
 		}
@@ -463,12 +260,6 @@ export class addModel {
 		let po = position
 		// 判断是否是平面
 		if (obj.name !== 'planeModel') {
-			if (obj.name.split('-').length > 1) {
-				// 找中心点
-				po = findCenterByPoint(position, obj, this.object)
-			} else {
-				po = obj.position
-			}
 			// 结束绘制模型
 			this.endDrawModel = obj.name.split('-')
 		}

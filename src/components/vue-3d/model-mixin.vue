@@ -28,7 +28,7 @@ import { CopyShader } from 'three/examples/jsm/shaders/CopyShader';
 import { BloomPass } from 'three/examples/jsm/postprocessing/BloomPass';
 import { CSS2DRenderer, CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer';
 
-import { addAllWindDir, saveArrayBuffer, saveString } from '../../utils/subVectors';
+import { addAllWindDir, saveArrayBuffer, saveString, findCenterByPoint } from '../../utils/subVectors';
 
 import editArea from '../edit-area/index.vue'
 // 删除弹窗
@@ -496,29 +496,27 @@ export default {
 			if (this.isRedact) {
 				const intersected = this.pick(event.clientX, event.clientY);
 				this.startRedact = !this.startRedact;
-				if (this.startRedact) {
-					this.newModel.addNewCylinder(
-						{
-							x: intersected.point.x,
-							y: intersected.point.y,
-							z: intersected.point.z
-						},
-						intersected.object
-					);
-					this.initPoint = intersected.point.y;
-					this.planeHei = intersected.point.y;
-				} else {
-					let changeModel = this.newModel.drawEnd(
-						{
-							x: intersected.point.x,
-							y: intersected.point.y,
-							z: intersected.point.z
-						},
-						intersected.object
-					);
-					this.$emit('end-draw', changeModel);
+				// 找中心点
+				let po = new Vector3(intersected.point.x, intersected.point.y, intersected.point.z)
+				let obj = intersected.object
+				if (obj.name !== 'planeModel') {
+					if (obj.name.split('-').length > 1) {
+						// 找中心点
+						po = findCenterByPoint(po, obj, this.object)
+					} else {
+						po = obj.position
+					}
 				}
-				this.$emit('on-dblclick', intersected);
+				if (this.startRedact) {
+					this.newModel.addNewCylinder(po, obj)
+					// 起始点
+					this.initPoint = po.y
+					this.planeHei = po.y
+				} else {
+					let changeModel = this.newModel.drawEnd(po, obj)
+					this.$emit('end-draw', changeModel)
+				}
+				this.$emit('on-dblclick', intersected)
 			}
 		},
 		onDraggingChanged (event) {
@@ -706,7 +704,7 @@ export default {
 			this.newCartoon._disposeMod(-1);
 			this.$emit('on-cartoon', this.newCartoon);
 			// eslint-disable-next-line new-cap
-			this.newModel = new addModel(this.object, this.camera, this.controls, this.outlinePass, this.selectedObjects, this.wrapper, this.initModel, this.nodeColor);
+			this.newModel = new addModel(this.object, this.camera, this.wrapper, this.initModel, this.nodeColor);
 			this.mixer = new THREE.AnimationMixer(this.object);
 			this.$emit('on-model', this.newModel);
 		},

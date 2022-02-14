@@ -388,42 +388,6 @@ export function addMyModel (position, object, type, sence) {
 	sence.add(arrowHelper)
 }
 
-export function addModelByFire (position, object, type, sence) {
-	let loader = new GLTFLoader()
-	loader.load('./fires/door.glb', (data) => {
-		let myWind = data.scene
-		let randomName = type == '1' ? 'door-' : (type == '2' ? 'window-': 'sensor-')
-		
-		let arrowHelper = myWind.clone()
-		arrowHelper.name = randomName + Math.random()
-		
-		let pointsName = object.name.split('-')
-		let points = []
-		sence.traverse((child) => {
-		  if (child.isMesh && ((child.name == pointsName[0]) || (child.name == pointsName[1]))) {
-				points.push(child.position)
-		  }
-		})
-		
-		let start = points[0]
-		let end = points[1]
-		let axis = new THREE.Vector3()
-		let dir = new THREE.Vector3()
-		
-		dir.subVectors(start, end)
-		let up = object.up
-		let tangent = dir.clone().normalize()
-		axis.crossVectors(up, tangent).normalize()
-		let radians = Math.acos(up.dot(tangent))
-		arrowHelper.quaternion.setFromAxisAngle(axis, radians)
-		
-		arrowHelper.position.set(position.x, position.y, position.z)
-		arrowHelper.rotation.set(object.rotation.x, object.rotation.y, object.rotation.z)
-		
-		sence.add(arrowHelper)
-	})
-}
-
 // 保存文件
 export function saveArrayBuffer ( buffer, filename) {
 	save( new Blob( [ buffer ], { type: 'application/octet-stream' } ), filename );
